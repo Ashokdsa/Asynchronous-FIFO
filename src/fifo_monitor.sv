@@ -17,27 +17,20 @@ class fifo_wmonitor extends uvm_monitor;
   task run_phase(uvm_phase phase);
     super.run_phase(phase);
     //INSERT DELAYS
-  @(vif.wmon_cb;b
+    repeat(1)@(vif.wmon_cb); //STARTS ONE CLOCK AFTER DRIVE
     forever begin
-      seq_item_port.get_next_item(req);
-      drive();
-      seq_item_port.item_done();
+      seq = fifo_sequence_item::type_id::create("seq_item");
+      #0;
+      seq.wrstn = vif.wrstn;
+      seq.winc = vif.winc;
+      seq.wdata = vif.wdata;
+      seq.wfull = vif.wfull;
+      item_collected_port.write(seq);
+      if(get_verbosity_level() >= UVM_MEDIUM)
+      begin
+        $display("WRITE MONITOR READ:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d\tWFULL = %0b",seq.wrstn,seq.winc,seq.wdata,seq.wfull);
+      end
+      repeat(2)@(vif.wmon_cb); //SAME DELAY AS DRIVER
     end
-  endtask
-
-  task drive();
-    //DRIVING THE WRITE SIGNALS
-    vif.wrstn <= req.wrstn;
-    if(req.wrstn)
-    begin
-      vif.winc <= (vif.wfull) ? 0 : req.winc;
-      vif.wdata <= req.wdata;
-    end
-    else
-    begin
-      vif.winc <= req.winc;
-      vif.wdata <= req.wdata;
-    end
-    repeat(2)@(vif.wdrv_cb);
   endtask
 endclass

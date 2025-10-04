@@ -27,13 +27,19 @@ class fifo_wdriver extends uvm_driver#(fifo_sequence_item);
     vif.wrstn <= req.wrstn;
     if(req.wrstn)
     begin
-      vif.winc <= (vif.wfull) ? 0 : req.winc;
+      vif.winc <= (vif.wfull) ? 0 : req.winc; //Q) HAVE TO ASK  ABOUT IT
+      if(vif.wfull)
+        `uvm_fatal(get_name,"FIFO IS FULL")
       vif.wdata <= req.wdata;
     end
     else
     begin
       vif.winc <= req.winc;
       vif.wdata <= req.wdata;
+    end
+    if(get_verbosity_level() >= UVM_MEDIUM)
+    begin
+      $display("WRITE DRIVER SENT:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d",req.wrstn,req.winc,req.wdata);
     end
     repeat(2)@(vif.wdrv_cb);
   endtask
@@ -73,6 +79,10 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
     else
     begin
       vif.rinc <= req.rinc;
+    end
+    if(get_verbosity_level() >= UVM_MEDIUM)
+    begin
+      $display("READ DRIVER SENT:\nRRSTN = %0b\tRINC = %0b",req.rrstn,req.rinc);
     end
     repeat(2)@(vif.rdrv_cb);
   endtask
