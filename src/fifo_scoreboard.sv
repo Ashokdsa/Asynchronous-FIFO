@@ -8,6 +8,8 @@ class fifo_scoreboard extends uvm_scoreboard;
   uvm_analysis_imp_w#(fifo_scoreboard,fifo_sequence_item)w_item_collect_export;
   uvm_analysis_imp_r#(fifo_scoreboard,fifo_sequence_item)r_item_collect_export;
 
+  int MATCH,MISMATCH;
+
   function new(string name = "fifo_scoreboard",uvm_component parent = null);
     super.new(name,parent);
     w_item_collect_export = new("w_collect",this);
@@ -17,17 +19,51 @@ class fifo_scoreboard extends uvm_scoreboard;
   int fifo[$];
   int wptr,rptr;
   bit full;
+  int full_i;
+  bit empti = 1;
+  int empty_i;
+
 
   virtual function void write_w(fifo_sequence_item wr);
     fifo_sequence_item a = wr;
-    wptr = a.wrstn ? (a.wfull ? wptr : wptr + a.winc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
+    `uvm_info(get_name,"RECIEVED THE WRITE OUTPUT",UVM_MEDIUM)
+    wptr = a.wrstn ? (full ? wptr : wptr + a.winc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
     full = (fifo.size() == `DEPTH); //I) Depth of FIFO to be tested
-    if(a.winc && full)
+    if(a.winc && !full)
     begin
       if(wptr > fifo.size())
         fifo.push_back(a.wdata);
       else if(wptr < fifo.size())
         fifo.insert(wptr,a.wdata);
+    end
+    if(full != a.wfull)
+    begin
+      full_i++;
+      `uvm_warning(get_name,$sformatf("FULL SIGNAL IS INCORRECT %0d TIMES",full_i))
+    end
+  endfunction
+
+  virtual function void write_r(fifo_sequence_item rd);
+    fifo_sequence_item b = rd;
+    `uvm_info(get_name,"RECIEVED THE READ OUTPUT",UVM_MEDIUM)
+    rptr = b.rrstn ? (empti ? rptr : rptr + b.rinc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
+    if(b.rinc && !empti)
+    begin
+      if(rptr > fifo.size())
+        fifo.push_back(b.rdata);
+      else if(rptr < fifo.size())
+        fifo.insert(rptr,b.rdata);
+    end
+    empti = (fifo.size() == 0); //I) Depth of FIFO to be tested
+    if(empti)
+    begin
+      wptr = 0;
+      rptr = 0;
+    end
+    if(empti != b.rempty)
+    begin
+      full_i++;
+      `uvm_warning(get_name,$sformatf("FULL SIGNAL IS INCORRECT %0d TIMES",full_i))
     end
   endfunction
 
