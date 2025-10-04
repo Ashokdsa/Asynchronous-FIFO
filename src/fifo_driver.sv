@@ -14,7 +14,7 @@ class fifo_wdriver extends uvm_driver#(fifo_sequence_item);
 
   task run_phase(uvm_phase phase);
     super.run_phase(phase);
-    //INSERT DELAYS
+    repeat(2)@(vif.wdrv_cb);
     forever begin
       seq_item_port.get_next_item(req);
       drive();
@@ -61,7 +61,7 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
 
   task run_phase(uvm_phase phase);
     super.run_phase(phase);
-    //INSERT DELAYS
+    repeat(2)@(vif.rdrv_cb);
     forever begin
       seq_item_port.get_next_item(req);
       drive();
@@ -75,6 +75,8 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
     if(req.wrstn)
     begin
       vif.rinc <= (vif.rempty) ? 0 : req.rinc;
+      if(vif.rempty)
+        `uvm_fatal(get_name,"FIFO IS EMPTY")
     end
     else
     begin
