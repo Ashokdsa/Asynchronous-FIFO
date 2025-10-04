@@ -22,8 +22,9 @@ class fifo_scoreboard extends uvm_scoreboard;
   int full_i;
   bit empti = 1;
   int empty_i;
+  int read_val;
 
-
+//GOT TO CHANGE THE REFERENCE
   virtual function void write_w(fifo_sequence_item wr);
     fifo_sequence_item a = wr;
     `uvm_info(get_name,"RECIEVED THE WRITE OUTPUT",UVM_MEDIUM)
@@ -43,16 +44,25 @@ class fifo_scoreboard extends uvm_scoreboard;
     end
   endfunction
 
+//think of the solution soon
   virtual function void write_r(fifo_sequence_item rd);
     fifo_sequence_item b = rd;
     `uvm_info(get_name,"RECIEVED THE READ OUTPUT",UVM_MEDIUM)
     rptr = b.rrstn ? (empti ? rptr : rptr + b.rinc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
-    if(b.rinc && !empti)
+    read_val = fifo[rptr];
+    if(b.rinc && !empti) //Q) WHAT IF I WRITE TWICE, READ ONCE AND THEN ASSERT RRESET,WHAT WILL IT READ NEXT
     begin
-      if(rptr > fifo.size())
-        fifo.push_back(b.rdata);
-      else if(rptr < fifo.size())
-        fifo.insert(rptr,b.rdata);
+      if(rptr == wptr)
+      begin
+        read_val = fifo.pop_front();
+        wptr = 0;
+        rptr = 0;
+      end
+      else if(rptr > wptr)
+      begin
+        read_val = fifo[rptr];
+        fifo.delete(rptr);
+      end
     end
     empti = (fifo.size() == 0); //I) Depth of FIFO to be tested
     if(empti)
@@ -62,8 +72,8 @@ class fifo_scoreboard extends uvm_scoreboard;
     end
     if(empti != b.rempty)
     begin
-      full_i++;
-      `uvm_warning(get_name,$sformatf("FULL SIGNAL IS INCORRECT %0d TIMES",full_i))
+      empty_i++;
+      `uvm_warning(get_name,$sformatf("EMPTY SIGNAL IS INCORRECT %0d TIMES",empty_i))
     end
   endfunction
 
