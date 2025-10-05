@@ -2,8 +2,9 @@
 `uvm_analysis_imp_decl(_w)
 `uvm_analysis_imp_decl(_r)
 class fifo_scoreboard extends uvm_scoreboard;
-  fifo_sequence_item seq;
   `uvm_component_utils(fifo_scoreboard)
+
+  fifo_sequence_item a,b;
 
   uvm_analysis_imp_w#(fifo_scoreboard,fifo_sequence_item)w_item_collect_export;
   uvm_analysis_imp_r#(fifo_scoreboard,fifo_sequence_item)r_item_collect_export;
@@ -16,65 +17,46 @@ class fifo_scoreboard extends uvm_scoreboard;
     r_item_collect_export = new("r_collect",this);
   endfunction
 
-  int fifo[$];
-  int wptr,rptr;
+  logic[`DATA-1:0] fifo[$];
+  logic[($clog2(`DEPTH)) : 0] wptr,rptr;
   bit full;
   int full_i;
   bit empti = 1;
   int empty_i;
-  int read_val;
-
-//GOT TO CHANGE THE REFERENCE
+  logic[`DATA-1:0] read_val;
+//Q) DIFFERENT TIME OF START OF CLOCK
   virtual function void write_w(fifo_sequence_item wr);
-    fifo_sequence_item a = wr;
+    a = wr;
     `uvm_info(get_name,"RECIEVED THE WRITE OUTPUT",UVM_MEDIUM)
     wptr = a.wrstn ? (full ? wptr : wptr + a.winc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
-    full = (fifo.size() == `DEPTH); //I) Depth of FIFO to be tested
-    if(a.winc && !full)
+    if(a.winc && !full && a.wrstn)
     begin
       if(wptr > fifo.size())
         fifo.push_back(a.wdata);
       else if(wptr < fifo.size())
-        fifo.insert(wptr,a.wdata);
+        fifo.insert(wptr[($clog2(`DEPTH)-1):0],a.wdata);
+      `uvm_info(get_name,$sformatf("WROTE %0d",a.wdata),UVM_DEBUG)
     end
-    if(full != a.wfull)
+    else if(!a.wrstn)
+    begin
+      while(fifo.size())
+        void'(fifo.pop_front());
+      rptr = 0;
+    end
+    full = (fifo.size() == `DEPTH); //I) Depth of FIFO to be tested
+    if(full !== a.wfull)
     begin
       full_i++;
       `uvm_warning(get_name,$sformatf("FULL SIGNAL IS INCORRECT %0d TIMES",full_i))
     end
   endfunction
 
-//think of the solution soon
+  fifo_sequence_item rqu[$];
+
   virtual function void write_r(fifo_sequence_item rd);
-    fifo_sequence_item b = rd;
+    fifo_sequence_item read = rd;
     `uvm_info(get_name,"RECIEVED THE READ OUTPUT",UVM_MEDIUM)
-    rptr = b.rrstn ? (empti ? rptr : rptr + b.rinc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
-    read_val = fifo[rptr];
-    if(b.rinc && !empti) //Q) WHAT IF I WRITE TWICE, READ ONCE AND THEN ASSERT RRESET,WHAT WILL IT READ NEXT
-    begin
-      if(rptr == wptr)
-      begin
-        read_val = fifo.pop_front();
-        wptr = 0;
-        rptr = 0;
-      end
-      else if(rptr > wptr)
-      begin
-        read_val = fifo[rptr];
-        fifo.delete(rptr);
-      end
-    end
-    empti = (fifo.size() == 0); //I) Depth of FIFO to be tested
-    if(empti)
-    begin
-      wptr = 0;
-      rptr = 0;
-    end
-    if(empti != b.rempty)
-    begin
-      empty_i++;
-      `uvm_warning(get_name,$sformatf("EMPTY SIGNAL IS INCORRECT %0d TIMES",empty_i))
-    end
+    rqu.push_back(read);
   endfunction
 
   function void build_phase(uvm_phase phase);
@@ -83,7 +65,33 @@ class fifo_scoreboard extends uvm_scoreboard;
 
   task run_phase(uvm_phase phase);
     super.run_phase(phase);
-    `uvm_info(get_name,"ENTERED SCB",UVM_LOW)
+    forever begin
+      `uvm_info(get_name,"ENTERED SCB",UVM_DEBUG)
+      wait(rqu.size());
+      b = rqu.pop_front();
+      rptr = b.rrstn ? (empti ? rptr : rptr + b.rinc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
+      empti = (fifo.size() == 0); //I) Depth of FIFO to be tested
+      if(b.rinc && !empti && b.rrstn)
+      begin
+        read_val = fifo.pop_front(); //I) NOT CHANGING EVEN IF RESET
+        `uvm_info(get_name,$sformatf("READ %0d",read_val),UVM_DEBUG)
+      end
+      if(empti !== b.rempty)
+      begin
+        empty_i++;
+        `uvm_warning(get_name,$sformatf("EMPTY SIGNAL IS INCORRECT %0d TIMES",empty_i))
+      end
+      //OUTPUT COMPARISON
+      if(read_val === b.rdata)
+      begin
+        `uvm_info(get_name,$sformatf("PROPER READ OUTPUT\nEXPECTED = %0d RECIEVED = %0d",read_val,b.rdata),UVM_LOW)
+        MATCH++;
+      end
+      else
+      begin
+        `uvm_error(get_name,$sformatf("\t\t\t\tIMPROPER READ OUTPUT\nEXPECTED = %0d RECIEVED = %0d",read_val,b.rdata),UVM_LOW)
+        MISMATCH++;
+      end
+    end
   endtask
-
 endclass
