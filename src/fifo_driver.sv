@@ -71,8 +71,8 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
 
   task drive();
     //DRIVING THE WRITE SIGNALS
-    vif.rrstn <= req.wrstn;
-    if(req.wrstn)
+    vif.rrstn <= req.rrstn;
+    if(req.rrstn)
     begin
       vif.rinc <= (vif.rempty) ? 0 : req.rinc;
       if(vif.rempty)

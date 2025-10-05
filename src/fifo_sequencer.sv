@@ -8,8 +8,8 @@ endclass
 
 class virtual_sequencer extends uvm_sequencer#(fifo_sequence_item);
   `uvm_component_utils(virtual_sequencer)
-  fifo_sequencer sequencer_1;
-  fifo_sequencer sequencer_2;
+  fifo_sequencer seqr_1;
+  fifo_sequencer seqr_2;
 
   function new(string name = "virtual_sequencer",uvm_component parent = null);
     super.new(name,parent);
