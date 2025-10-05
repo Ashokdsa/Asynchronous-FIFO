@@ -83,12 +83,7 @@ class fifo_scoreboard extends uvm_scoreboard;
 
   task run_phase(uvm_phase phase);
     super.run_phase(phase);
-    repeat(2)@(vif.rdrv_cb);
-    forever begin
-      seq_item_port.get_next_item(req);
-      drive();
-      seq_item_port.item_done();
-    end
+    `uvm_info(get_name,"ENTERED SCB",UVM_LOW)
   endtask
 
 endclass

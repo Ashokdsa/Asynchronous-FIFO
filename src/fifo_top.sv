@@ -5,7 +5,7 @@ import uvm_pkg::*;
 import fifo_pkg::*;
 //`include "design.v" //FIFO DESIGN
 `include "fifo_assertion.sv"
-module fifo_top extends uvm_top;
+module fifo_top;
   bit w_clk,r_clk;
   real dw = (500/`WCLK) ,dr = (500/`RCLK);
 
@@ -13,7 +13,7 @@ module fifo_top extends uvm_top;
 
   always #dr r_clk = ~r_clk; 
 
-  fifo_intf intf(.w_clk(w_clk),.r_clk(r_clk));
+  fifo_intf intf(.wclk(w_clk),.rclk(r_clk));
 
   bind fifo_intf fifo_assertion assertion(.*);
 

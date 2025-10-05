@@ -19,7 +19,7 @@ class fifo_test extends uvm_test;
     uvm_objection phase_done = phase.get_objection();
     super.run_phase(phase);
     phase.raise_objection(this,"SEQUENCE STARTED");
-      vseq = virtual_sequence::type_id::create("virtual_sequence");
+      vseq = virtual_sequence#(fifo_base_sequence)::type_id::create("virtual_sequence");
       vseq.start(env.vseqr);
     phase.drop_objection(this,"SEQUENCE ENDED");
     phase_done.set_drain_time(this,20);

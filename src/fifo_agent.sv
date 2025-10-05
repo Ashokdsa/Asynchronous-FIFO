@@ -29,7 +29,7 @@ class fifo_r_agent extends uvm_agent;
   fifo_rdriver drv;
   fifo_rmonitor mon;
   fifo_sequencer seqr;
-  `uvm_component_utils(fifo_agent)
+  `uvm_component_utils(fifo_r_agent)
 
   function new(string name = "fifo_r_agent",uvm_component parent = null);
     super.new(name,parent);
@@ -47,7 +47,7 @@ class fifo_r_agent extends uvm_agent;
   function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
     if(get_is_active() == UVM_ACTIVE)
-      drv.seq_item_port.connect(seq.seq_item_export);
+      drv.seq_item_port.connect(seqr.seq_item_export);
   endfunction
 
 endclass

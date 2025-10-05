@@ -23,17 +23,17 @@ clean:
 	clear
 
 compile:
-	@echo -e "........COMPILING CODE WITH WCLK = $(WCLK)MHz RCLK = $(RCLK)MHz......."
+	@echo "\t\t\t\t...............................COMPILING CODE WITH WCLK = $(WCLK)MHz RCLK = $(RCLK)MHz..............................."
 	source $(QUESTA)
 	vlog -sv +acc +cover +fcover +define+WCLK=$(WCLK) +define+RCLK=$(RCLK) -l fifo.log fifo_top.sv 
 
 wave:
 	make compile
-	@echo -e "...............GENERATING WAVEFORM FOR TEST = $(TEST)..............."
+	@echo "\t\t\t\t\t...............GENERATING WAVEFORM FOR TEST = $(TEST)..............."
 	vsim -novopt work.fifo_top +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=$(V)
 
 simulate:
-	@echo -e "...............SIMULATING TEST = $(TEST) WITH VERBOSITY = $(V)..............."
+	@echo "\t\t\t\t...........................SIMULATING TEST = $(TEST) WITH VERBOSITY = $(V)..........................."
 	vsim -vopt work.fifo_top -voptargs=+acc=npr -assertdebug -l simulation.log -coverage -c -do "coverage save -onexit -assert -directive -cvg -codeAll fifo_coverage.ucdb; run -all; exit" +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=$(V)
 
 view:

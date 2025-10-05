@@ -37,7 +37,7 @@ class fifo_wdriver extends uvm_driver#(fifo_sequence_item);
       vif.winc <= req.winc;
       vif.wdata <= req.wdata;
     end
-    if(get_verbosity_level() >= UVM_MEDIUM)
+    if(get_report_verbosity_level() >= UVM_MEDIUM)
     begin
       $display("WRITE DRIVER SENT:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d",req.wrstn,req.winc,req.wdata);
     end
@@ -82,7 +82,7 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
     begin
       vif.rinc <= req.rinc;
     end
-    if(get_verbosity_level() >= UVM_MEDIUM)
+    if(get_report_verbosity_level() >= UVM_MEDIUM)
     begin
       $display("READ DRIVER SENT:\nRRSTN = %0b\tRINC = %0b",req.rrstn,req.rinc);
     end

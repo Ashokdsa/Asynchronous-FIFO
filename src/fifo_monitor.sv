@@ -1,7 +1,7 @@
 class fifo_wmonitor extends uvm_monitor;
   virtual fifo_intf vif;
   fifo_sequence_item seq;
-  uvm_analysis_port#(seq)item_collected_port;
+  uvm_analysis_port#(fifo_sequence_item)item_collected_port;
   `uvm_component_utils(fifo_wmonitor)
 
   function new(string name = "fifo_wmonitor",uvm_component parent = null);
@@ -26,7 +26,7 @@ class fifo_wmonitor extends uvm_monitor;
       seq.wdata = vif.wdata;
       seq.wfull = vif.wfull;
       item_collected_port.write(seq);
-      if(get_verbosity_level() >= UVM_MEDIUM)
+      if(get_report_verbosity_level() >= UVM_MEDIUM)
       begin
         $display("WRITE MONITOR READ:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d\tWFULL = %0b",seq.wrstn,seq.winc,seq.wdata,seq.wfull);
       end
@@ -38,7 +38,7 @@ endclass
 class fifo_rmonitor extends uvm_monitor;
   virtual fifo_intf vif;
   fifo_sequence_item seq;
-  uvm_analysis_port#(seq)item_collected_port;
+  uvm_analysis_port#(fifo_sequence_item)item_collected_port;
   `uvm_component_utils(fifo_rmonitor)
 
   function new(string name = "fifo_rmonitor",uvm_component parent = null);
@@ -63,7 +63,7 @@ class fifo_rmonitor extends uvm_monitor;
       seq.rdata = vif.rdata;
       seq.rempty = vif.rempty;
       item_collected_port.write(seq);
-      if(get_verbosity_level() >= UVM_MEDIUM)
+      if(get_report_verbosity_level() >= UVM_MEDIUM)
       begin
         $display("READ MONITOR READ:\nRRSTN = %0b\nRINC = %0b\nRDATA = %0d\tREMPTY = %0b",seq.rrstn,seq.rinc,seq.rdata,seq.rempty);
       end
