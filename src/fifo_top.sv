@@ -1,7 +1,9 @@
 `timescale 1ns/1ps
-`include "defines.svh"
-//`include "design.v" //FIFO DESIGN
 `include "fifo_interface.sv"
+`include "fifo_pkg.svh"
+import uvm_pkg::*;
+import fifo_pkg::*;
+//`include "design.v" //FIFO DESIGN
 `include "fifo_assertion.sv"
 module fifo_top extends uvm_top;
   bit w_clk,r_clk;
