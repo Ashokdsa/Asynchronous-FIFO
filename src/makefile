@@ -1,7 +1,7 @@
 QUESTA := /home/share/questa.csh
 SHELL := /bin/csh
-TEST ?= fifo_test
-V ?= UVM_LOW
+TEST ?= fifo_regress_test
+V ?= UVM_DEBUG
 WCLK ?= 100
 RCLK ?= 100
 

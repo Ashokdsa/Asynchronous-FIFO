@@ -1,12 +1,6 @@
 `include "defines.svh"
 typedef enum{READ,WRITE}para;
 `uvm_analysis_imp_decl(_subs_r)
-//COVERGROUPS
-covergroup input_cg(para p);
-endgroup
-
-covergroup output_cg(para p);
-endgroup
 
 //SUBSCRIBER
 class fifo_subscriber extends uvm_subscriber#(fifo_sequence_item);
@@ -15,37 +9,82 @@ class fifo_subscriber extends uvm_subscriber#(fifo_sequence_item);
   fifo_sequence_item mon_w,mon_r;
   uvm_analysis_imp_subs_r#(fifo_subscriber,fifo_sequence_item)r_item_collect_export;
 
-
-  input_cg w_in_cg, r_in_cg;
-  output_cg w_out_cg, r_out_cg;
+  //COVERGROUPS
+  covergroup write_cg;
+    //INPUT
+    WRSTN_cp: coverpoint mon_w.wrstn
+              {
+                bins normal = {1};
+                bins reset = {0};
+              }
+    WDATA_cp: coverpoint mon_w.wdata
+              {
+                bins wval[3] = {[0:$]};
+              }
+    WINC_cp: coverpoint mon_w.winc;
+    WRSTxINC: cross WRSTN_cp,WINC_cp
+             {
+               bins normal = binsof(WRSTN_cp.normal);
+               bins special = binsof(WRSTN_cp.reset) && (binsof(WINC_cp) intersect {1});
+             }
+    //OUTPUT
+    WFULL_cp: coverpoint mon_w.wfull;
+    WFULLxINC: cross WFULL_cp,WINC_cp
+               {
+                 bins normal = (binsof(WFULL_cp) intersect {0}) || ((binsof(WFULL_cp) intersect {1}) && (binsof(WINC_cp) intersect {0}));
+                 bins special = (binsof(WFULL_cp) intersect {1}) && (binsof(WINC_cp) intersect {1});
+               }
+  endgroup
+  
+  covergroup read_cg;
+    //INPUT
+    RRSTN_cp: coverpoint mon_r.rrstn
+              {
+                bins normal = {1};
+                bins reset = {0};
+              }
+    RINC_cp: coverpoint mon_r.rinc;
+    RRSTxINC: cross RRSTN_cp,RINC_cp
+             {
+               bins normal = binsof(RRSTN_cp.normal);
+               bins special = binsof(RRSTN_cp.reset) && (binsof(RINC_cp) intersect {1});
+             }
+    //OUTPUT
+    RDATA_cp: coverpoint mon_r.rdata
+              {
+                bins rval[3] = {[0:$]};
+              }
+    REMPTY_cp: coverpoint mon_r.rempty;
+    REMPTYxINC: cross REMPTY_cp,RINC_cp
+               {
+                 bins normal = (binsof(REMPTY_cp) intersect {0}) || ((binsof(REMPTY_cp) intersect {1}) && (binsof(RINC_cp) intersect {0}));
+                 bins special = (binsof(REMPTY_cp) intersect {1}) && (binsof(RINC_cp) intersect {1});
+               }
+  endgroup
 
   function new(string name = "fifo_subscriber",uvm_component parent = null);
     super.new(name,parent);
-    w_in_cg = new(WRITE);
-    r_in_cg = new(READ);
-    w_out_cg = new(WRITE);
-    r_out_cg = new(READ);
     r_item_collect_export = new("r_collect",this);
+    write_cg = new();
+    read_cg = new();
   endfunction
 
   virtual function void write(fifo_sequence_item t);
     mon_w = t;
-    w_in_cg.sample();
-    w_out_cg.sample();
+    write_cg.sample();
     `uvm_info(get_name,"WRITE INPUTS AND OUTPUTS RECIEVED",UVM_LOW)
   endfunction
 
   virtual function void write_subs_r(fifo_sequence_item rd);
     mon_r = rd;
-    r_in_cg.sample();
-    r_out_cg.sample();
+    read_cg.sample();
     `uvm_info(get_name,"READ INPUTS AND OUTPUTS RECIEVED",UVM_LOW)
   endfunction
 
   function void report_phase(uvm_phase phase);
     super.report_phase(phase);
     $display("---\t\tFUNCTIONAL COVERAGE\t\t---");
-    $display("INPUT COVERAGE = %0d\nOUTPUT COVERAGE = %0d\n",(w_in_cg.get_coverage()+r_in_cg.get_coverage())/2,(w_out_cg.get_coverage()+r_out_cg.get_coverage())/2);
+    $display("WRITE COVERAGE = %0d\nREAD COVERAGE = %0d\n",write_cg.get_coverage(),read_cg.get_coverage());
   endfunction
 endclass
 

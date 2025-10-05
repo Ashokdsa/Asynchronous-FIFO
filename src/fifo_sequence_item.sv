@@ -9,10 +9,7 @@ class fifo_sequence_item extends uvm_sequence_item;
 
   constraint normal
   {
-    if(!wfull)
-      soft winc == 1;
-    if(!rempty)
-      soft rinc == 1;
+    soft winc || rinc;
     soft wrstn == 1;
     soft rrstn == 1;
   }

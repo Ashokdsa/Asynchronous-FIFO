@@ -89,7 +89,7 @@ class fifo_scoreboard extends uvm_scoreboard;
       end
       else
       begin
-        `uvm_error(get_name,$sformatf("\t\t\t\tIMPROPER READ OUTPUT\nEXPECTED = %0d RECIEVED = %0d",read_val,b.rdata),UVM_LOW)
+        `uvm_error(get_name,$sformatf("\t\t\t\tIMPROPER READ OUTPUT\nEXPECTED = %0d RECIEVED = %0d",read_val,b.rdata))
         MISMATCH++;
       end
     end
