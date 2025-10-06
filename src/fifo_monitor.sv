@@ -44,6 +44,7 @@ class fifo_rmonitor extends uvm_monitor;
   uvm_analysis_port#(fifo_sequence_item)item_collected_port;
   `uvm_component_utils(fifo_rmonitor)
   int count;
+  bit start;
 
   function new(string name = "fifo_rmonitor",uvm_component parent = null);
     super.new(name,parent);
@@ -74,6 +75,11 @@ class fifo_rmonitor extends uvm_monitor;
         $display("\t\t\t\t---------%0d---------\n\t\t\t\tREAD MONITOR READ:\n\t\t\t\tRRSTN = %0b\n\t\t\t\tRINC = %0b\n\t\t\t\tRDATA = %0d\tREMPTY = %0b",count,seq.rrstn,seq.rinc,seq.rdata,seq.rempty);
       end
       repeat(2)@(vif.rmon_cb); //SAME DELAY AS DRIVER
+      if(~start && seq.rinc)
+      begin
+        start = 1;
+        repeat(2)@(vif.rmon_cb); //SAME DELAY AS DRIVER
+      end
     end
   endtask
 endclass
