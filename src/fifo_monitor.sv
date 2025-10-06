@@ -75,7 +75,7 @@ class fifo_rmonitor extends uvm_monitor;
         $display("\t\t\t\t---------%0d---------\n\t\t\t\tREAD MONITOR READ:\n\t\t\t\tRRSTN = %0b\n\t\t\t\tRINC = %0b\n\t\t\t\tRDATA = %0d\tREMPTY = %0b",count,seq.rrstn,seq.rinc,seq.rdata,seq.rempty);
       end
       repeat(2)@(vif.rmon_cb); //SAME DELAY AS DRIVER
-      if(~start && seq.rinc)
+      if(~start && seq.rinc && vif.winc)
       begin
         start = 1;
         repeat(2)@(vif.rmon_cb); //SAME DELAY AS DRIVER
