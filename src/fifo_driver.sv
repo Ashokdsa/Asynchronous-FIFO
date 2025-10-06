@@ -1,6 +1,7 @@
 class fifo_wdriver extends uvm_driver#(fifo_sequence_item);
   virtual fifo_intf vif;
   `uvm_component_utils(fifo_wdriver)
+  int count;
 
   function new(string name = "fifo_wdriver",uvm_component parent = null);
     super.new(name,parent);
@@ -16,7 +17,10 @@ class fifo_wdriver extends uvm_driver#(fifo_sequence_item);
     super.run_phase(phase);
     repeat(2)@(vif.wdrv_cb);
     forever begin
+      vif.wrstn <= 1;
+      vif.winc <= 0; //Q) HAVE TO ASK  ABOUT IT
       seq_item_port.get_next_item(req);
+      count++;
       drive();
       seq_item_port.item_done();
     end
@@ -25,22 +29,14 @@ class fifo_wdriver extends uvm_driver#(fifo_sequence_item);
   task drive();
     //DRIVING THE WRITE SIGNALS
     vif.wrstn <= req.wrstn;
-    if(req.wrstn)
-    begin
-      vif.winc <= (vif.wfull) ? 0 : req.winc; //Q) HAVE TO ASK  ABOUT IT
-      if(vif.wfull)
-        `uvm_fatal(get_name,"FIFO IS FULL")
-      vif.wdata <= req.wdata;
-    end
-    else
-    begin
-      vif.winc <= req.winc;
-      vif.wdata <= req.wdata;
-    end
+    vif.winc <= req.winc; //Q) HAVE TO ASK  ABOUT IT
+    vif.wdata <= req.wdata;
+
     if(get_report_verbosity_level() >= UVM_MEDIUM)
     begin
-      $display("WRITE DRIVER SENT:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d",req.wrstn,req.winc,req.wdata);
+      $display("---------%0d---------\nWRITE DRIVER SENT:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d",count,req.wrstn,req.winc,req.wdata);
     end
+
     repeat(2)@(vif.wdrv_cb);
   endtask
 endclass
@@ -48,6 +44,7 @@ endclass
 class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
   virtual fifo_intf vif;
   `uvm_component_utils(fifo_rdriver)
+  int count;
 
   function new(string name = "fifo_rdriver",uvm_component parent = null);
     super.new(name,parent);
@@ -63,7 +60,10 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
     super.run_phase(phase);
     repeat(2)@(vif.rdrv_cb);
     forever begin
+      vif.rrstn <= 1;
+      vif.rinc <= 0;
       seq_item_port.get_next_item(req);
+      count++;
       drive();
       seq_item_port.item_done();
     end
@@ -72,20 +72,13 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
   task drive();
     //DRIVING THE WRITE SIGNALS
     vif.rrstn <= req.rrstn;
-    if(req.rrstn)
-    begin
-      vif.rinc <= (vif.rempty) ? 0 : req.rinc;
-      if(vif.rempty)
-        `uvm_fatal(get_name,"FIFO IS EMPTY")
-    end
-    else
-    begin
-      vif.rinc <= req.rinc;
-    end
+    vif.rinc <= req.rinc;
+
     if(get_report_verbosity_level() >= UVM_MEDIUM)
     begin
-      $display("READ DRIVER SENT:\nRRSTN = %0b\tRINC = %0b",req.rrstn,req.rinc);
+      $display("\t\t\t\t-------------%0d------------\n\t\t\t\tREAD DRIVER SENT:\n\t\t\t\tRRSTN = %0b\tRINC = %0b",count,req.rrstn,req.rinc);
     end
+
     repeat(2)@(vif.rdrv_cb);
   endtask
 endclass

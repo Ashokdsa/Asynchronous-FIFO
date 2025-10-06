@@ -1,7 +1,7 @@
 QUESTA := /home/share/questa.csh
 SHELL := /bin/csh
 TEST ?= fifo_regress_test
-V ?= UVM_DEBUG
+V ?= UVM_LOW
 WCLK ?= 100
 RCLK ?= 50
 
@@ -14,7 +14,7 @@ all:
 	vcover report -html fifo_coverage.ucdb -htmldir covReport -details
 
 clean:
-	rm -rf work/ transcript vsim.wlf fifo_wave.vcd
+	rm -rf work/ transcript vsim.wlf fifo_wave.vcd vsim_stacktrace.vstf
 	rm -rf covReport fifo_coverage.ucdb
 	rm fifo.log simulation.log
 	rm fifo_coverage.ucdb

@@ -3,6 +3,7 @@ class fifo_wmonitor extends uvm_monitor;
   fifo_sequence_item seq;
   uvm_analysis_port#(fifo_sequence_item)item_collected_port;
   `uvm_component_utils(fifo_wmonitor)
+  int count;
 
   function new(string name = "fifo_wmonitor",uvm_component parent = null);
     super.new(name,parent);
@@ -20,6 +21,7 @@ class fifo_wmonitor extends uvm_monitor;
     repeat(2)@(vif.wmon_cb);
     repeat(1)@(vif.wmon_cb); //STARTS ONE CLOCK AFTER DRIVE
     forever begin
+      count++;
       seq = fifo_sequence_item::type_id::create("seq_item");
       #0;
       seq.wrstn = vif.wrstn;
@@ -29,7 +31,7 @@ class fifo_wmonitor extends uvm_monitor;
       item_collected_port.write(seq);
       if(get_report_verbosity_level() >= UVM_MEDIUM)
       begin
-        $display("WRITE MONITOR READ:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d\tWFULL = %0b",seq.wrstn,seq.winc,seq.wdata,seq.wfull);
+        $display("----------%0d-----------\nWRITE MONITOR READ:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d\tWFULL = %0b",count,seq.wrstn,seq.winc,seq.wdata,seq.wfull);
       end
       repeat(2)@(vif.wmon_cb); //SAME DELAY AS DRIVER
     end
@@ -41,6 +43,7 @@ class fifo_rmonitor extends uvm_monitor;
   fifo_sequence_item seq;
   uvm_analysis_port#(fifo_sequence_item)item_collected_port;
   `uvm_component_utils(fifo_rmonitor)
+  int count;
 
   function new(string name = "fifo_rmonitor",uvm_component parent = null);
     super.new(name,parent);
@@ -58,6 +61,7 @@ class fifo_rmonitor extends uvm_monitor;
     repeat(2)@(vif.rmon_cb);
     repeat(1)@(vif.rmon_cb); //STARTS ONE CLOCK AFTER DRIVE
     forever begin
+      count++;
       seq = fifo_sequence_item::type_id::create("seq_item");
       #0;
       seq.rrstn = vif.rrstn;
@@ -67,7 +71,7 @@ class fifo_rmonitor extends uvm_monitor;
       item_collected_port.write(seq);
       if(get_report_verbosity_level() >= UVM_MEDIUM)
       begin
-        $display("READ MONITOR READ:\nRRSTN = %0b\nRINC = %0b\nRDATA = %0d\tREMPTY = %0b",seq.rrstn,seq.rinc,seq.rdata,seq.rempty);
+        $display("\t\t\t\t---------%0d---------\n\t\t\t\tREAD MONITOR READ:\n\t\t\t\tRRSTN = %0b\n\t\t\t\tRINC = %0b\n\t\t\t\tRDATA = %0d\tREMPTY = %0b",count,seq.rrstn,seq.rinc,seq.rdata,seq.rempty);
       end
       repeat(2)@(vif.rmon_cb); //SAME DELAY AS DRIVER
     end

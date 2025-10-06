@@ -12,9 +12,10 @@ class fifo_environment extends uvm_env;
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
-    //NOT NECESSARY AS DEFAULT IS UVM_ACTIVE
+    /*NOT NECESSARY AS DEFAULT IS UVM_ACTIVE
     uvm_config_db#(uvm_active_passive_enum)::set(this,"w_agnt","is_active",UVM_ACTIVE);
     uvm_config_db#(uvm_active_passive_enum)::set(this,"r_agnt","is_active",UVM_ACTIVE);
+    */
 
     //2 AGENT CREATION
     w_agnt = fifo_w_agent::type_id::create("w_agnt",this);
@@ -28,10 +29,6 @@ class fifo_environment extends uvm_env;
 
     //VSEQUENCER CREATION
     vseqr = virtual_sequencer::type_id::create("vseqr",this);
-
-    //CONNECTING THE VSEQUENCER SEQUENCERS TO THE ACTUAL SEQUENCERS
-    vseqr.seqr_1 = w_agnt.seqr;
-    vseqr.seqr_2 = r_agnt.seqr;
   endfunction
 
   function void connect_phase(uvm_phase phase);
@@ -42,5 +39,8 @@ class fifo_environment extends uvm_env;
     //SUBSCRIBER CONNECTION
     w_agnt.mon.item_collected_port.connect(subs.analysis_export);
     r_agnt.mon.item_collected_port.connect(subs.r_item_collect_export);
+    //CONNECTING THE VSEQUENCER SEQUENCERS TO THE ACTUAL SEQUENCERS
+    vseqr.seqr_1 = w_agnt.seqr;
+    vseqr.seqr_2 = r_agnt.seqr;
   endfunction
 endclass

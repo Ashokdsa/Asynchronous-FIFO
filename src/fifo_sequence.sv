@@ -186,6 +186,8 @@ class fifo_regress_sequence extends fifo_base_sequence;
   fifo_write_reset_sequence seq_w;
   fifo_no_sequence n_seq;
 
+  int a = 1;
+
   `uvm_object_utils(fifo_regress_sequence)
 
   function new(string name = "fifo_regress_sequence");
@@ -193,18 +195,31 @@ class fifo_regress_sequence extends fifo_base_sequence;
   endfunction
 
   task body();
+    `uvm_do(in_r_seq)
+    `uvm_do(w_seq);
+    `uvm_do(r_seq);
+    `uvm_do(wr_seq);
+    `uvm_do(seq_r);
+    `uvm_do(seq_w);
+    `uvm_do(n_seq);
   endtask
 endclass
 
 class virtual_sequence#(type T = fifo_base_sequence) extends fifo_base_sequence;
+
   fifo_base_sequence seq_1;
   fifo_base_sequence seq_2;
+
+  fifo_sequencer seqr_1;
+  fifo_sequencer seqr_2;
+
   `uvm_object_param_utils(virtual_sequence#(T))
+  `uvm_declare_p_sequencer(virtual_sequencer)
 
   function new(string name = "virtual_sequence");
     super.new(name);
     fifo_base_sequence::type_id::set_type_override(T::get_type());
-    `uvm_info(get_type_name,$sformatf("RUNNING %0s",fifo_base_sequence::get_type_name()),UVM_LOW)
+    `uvm_info(get_type_name,$sformatf("RUNNING %0p",fifo_base_sequence::get_type()),UVM_LOW)
   endfunction
 
   task body();
@@ -212,19 +227,24 @@ class virtual_sequence#(type T = fifo_base_sequence) extends fifo_base_sequence;
     `uvm_info(get_type_name,"VIRTUAL SEQUENCE BEGUN",UVM_LOW)
     seq_1 = fifo_base_sequence::type_id::create("seq_1");
     seq_2 = fifo_base_sequence::type_id::create("seq_2");
+    //$display("A1 = %0d, A2 = %0d",seq_1.a,seq_2.a);
 
     if(!$cast(env_s,uvm_top.find("uvm_test_top.env")))
-      `uvm_error(get_name(),"Environment is NOT Created")
+      `uvm_fatal(get_name(),"Environment is NOT Created")
+    else
+      $display("CASTED");
 
     fork
       begin
-        seq_1.start(env_s.vseqr.seqr_1);
+        seq_1.start(p_sequencer.seqr_1);
         `uvm_info(get_type_name,"SEQUENCER 1 HAS BEGUN",UVM_LOW)
       end
+
       begin
-        seq_2.start(env_s.vseqr.seqr_2);
+        seq_2.start(p_sequencer.seqr_2);
         `uvm_info(get_type_name,"SEQUENCER 2 HAS BEGUN",UVM_LOW)
       end
     join
+
   endtask
 endclass
