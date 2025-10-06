@@ -18,10 +18,10 @@ class fifo_scoreboard extends uvm_scoreboard;
   endfunction
 
   logic[`DATA-1:0] fifo[$];
-  logic[($clog2(`DEPTH)) : 0] wptr,rptr;
+  bit[($clog2(`DEPTH)) : 0] wptr,rptr;
   bit full;
   int full_i;
-  bit empti = 1;
+  bit empti;
   int empty_i;
   logic[`DATA-1:0] read_val;
 //Q) DIFFERENT TIME OF START OF CLOCK
@@ -29,6 +29,7 @@ class fifo_scoreboard extends uvm_scoreboard;
     a = wr;
     `uvm_info(get_name,"RECIEVED THE WRITE OUTPUT",UVM_MEDIUM)
     wptr = a.wrstn ? (full ? wptr : wptr + a.winc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
+    //`uvm_warning(get_name,$sformatf("WPTR = %0d",wptr))
     if(a.winc && !full && a.wrstn)
     begin
       if(wptr > fifo.size())
@@ -56,7 +57,8 @@ class fifo_scoreboard extends uvm_scoreboard;
   virtual function void write_r(fifo_sequence_item rd);
     fifo_sequence_item read = rd;
     `uvm_info(get_name,"RECIEVED THE READ OUTPUT",UVM_DEBUG)
-    rqu.push_back(read);
+    if(read.rinc)
+      rqu.push_back(read);
   endfunction
 
   function void build_phase(uvm_phase phase);
@@ -69,12 +71,12 @@ class fifo_scoreboard extends uvm_scoreboard;
       `uvm_info(get_name,"ENTERED SCB",UVM_DEBUG)
       wait(rqu.size());
       b = rqu.pop_front();
-      rptr = b.rrstn ? (empti ? rptr : rptr + b.rinc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
       empti = (fifo.size() == 0); //I) Depth of FIFO to be tested
+      rptr = b.rrstn ? (empti ? rptr : rptr + b.rinc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
+      read_val = fifo[0]; //I) NOT CHANGING EVEN IF RESET
       if(b.rinc && !empti && b.rrstn)
       begin
-        $display("GIVEN AN OUTPUT");
-        read_val = fifo.pop_front(); //I) NOT CHANGING EVEN IF RESET
+        void'(fifo.pop_front());
         `uvm_info(get_name,$sformatf("READ %0d",read_val),UVM_DEBUG)
       end
       if(empti !== b.rempty)
@@ -95,4 +97,9 @@ class fifo_scoreboard extends uvm_scoreboard;
       end
     end
   endtask
+
+  function void report_phase(uvm_phase phase);
+    super.report_phase(phase);
+    `uvm_info(get_name,$sformatf("MATCHES = %0d MISMATCH = %0d PERCENTAGE = %0f",MATCH,MISMATCH,(real'(MATCH)/(real'(MATCH)+real'(MISMATCH)))*100),UVM_LOW)
+  endfunction
 endclass
