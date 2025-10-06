@@ -3,7 +3,7 @@
 `include "fifo_pkg.svh"
 import uvm_pkg::*;
 import fifo_pkg::*;
-//`include "design.v" //FIFO DESIGN
+`include "/home/ashokpius/Async_FIFO_design/Async_FIFO_Design/Verilog_Code/FIFO.v" //FIFO DESIGN
 `include "fifo_assertion.sv"
 module fifo_top;
   bit w_clk,r_clk;
@@ -17,7 +17,7 @@ module fifo_top;
 
   bind fifo_intf fifo_assertion assertion(.*);
 
-  //design DUT();
+  FIFO DUT(.rdata(intf.rdata),.wfull(intf.wfull),.rempty(intf.rempty),.wdata(intf.wdata),.winc(intf.winc),.wclk(intf.wclk),.wrst_n(intf.wrstn),.rinc(intf.rinc),.rclk(intf.rclk),.rrst_n(intf.rrstn));
 
   initial begin
     intf.wrstn = 0;

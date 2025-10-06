@@ -73,6 +73,7 @@ class fifo_scoreboard extends uvm_scoreboard;
       empti = (fifo.size() == 0); //I) Depth of FIFO to be tested
       if(b.rinc && !empti && b.rrstn)
       begin
+        $display("GIVEN AN OUTPUT");
         read_val = fifo.pop_front(); //I) NOT CHANGING EVEN IF RESET
         `uvm_info(get_name,$sformatf("READ %0d",read_val),UVM_DEBUG)
       end
