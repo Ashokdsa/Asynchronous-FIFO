@@ -6,15 +6,15 @@ class fifo_scoreboard extends uvm_scoreboard;
 
   fifo_sequence_item a,b;
 
-  uvm_analysis_imp_w#(fifo_scoreboard,fifo_sequence_item)w_item_collect_export;
-  uvm_analysis_imp_r#(fifo_scoreboard,fifo_sequence_item)r_item_collect_export;
+  uvm_analysis_imp_w#(fifo_sequence_item,fifo_scoreboard)w_item_collect_export;
+  uvm_analysis_imp_r#(fifo_sequence_item,fifo_scoreboard)r_item_collect_export;
 
   int MATCH,MISMATCH;
 
   function new(string name = "fifo_scoreboard",uvm_component parent = null);
     super.new(name,parent);
-    w_item_collect_export = new("w_collect",this);
-    r_item_collect_export = new("r_collect",this);
+    w_item_collect_export = new("w_scb_collect",this);
+    r_item_collect_export = new("r_scb_collect",this);
   endfunction
 
   logic[`DATA-1:0] fifo[$];

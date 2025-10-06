@@ -104,7 +104,6 @@ class fifo_no_sequence extends fifo_base_sequence;
       {
         seq.winc == 0;
         seq.rinc == 0;
-        seq.wdata == wval;
         seq.wrstn && seq.rrstn == 1;
       })
     end
@@ -197,7 +196,7 @@ class fifo_regress_sequence extends fifo_base_sequence;
   endtask
 endclass
 
-class virtual_sequence#(type T = fifo_base_sequence) extends uvm_sequence#(fifo_sequence_item);
+class virtual_sequence#(type T = fifo_base_sequence) extends fifo_base_sequence;
   fifo_base_sequence seq_1;
   fifo_base_sequence seq_2;
   `uvm_object_param_utils(virtual_sequence#(T))

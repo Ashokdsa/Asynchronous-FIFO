@@ -6,6 +6,7 @@ class fifo_wmonitor extends uvm_monitor;
 
   function new(string name = "fifo_wmonitor",uvm_component parent = null);
     super.new(name,parent);
+    item_collected_port = new("w_item_collected_port",this);
   endfunction
 
   function void build_phase(uvm_phase phase);
@@ -43,6 +44,7 @@ class fifo_rmonitor extends uvm_monitor;
 
   function new(string name = "fifo_rmonitor",uvm_component parent = null);
     super.new(name,parent);
+    item_collected_port = new("r_item_collected_port",this);
   endfunction
 
   function void build_phase(uvm_phase phase);

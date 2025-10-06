@@ -7,7 +7,7 @@ class fifo_subscriber extends uvm_subscriber#(fifo_sequence_item);
   `uvm_component_utils(fifo_subscriber)
 
   fifo_sequence_item mon_w,mon_r;
-  uvm_analysis_imp_subs_r#(fifo_subscriber,fifo_sequence_item)r_item_collect_export;
+  uvm_analysis_imp_subs_r#(fifo_sequence_item,fifo_subscriber)r_item_collect_export;
 
   //COVERGROUPS
   covergroup write_cg;

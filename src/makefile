@@ -3,7 +3,7 @@ SHELL := /bin/csh
 TEST ?= fifo_regress_test
 V ?= UVM_DEBUG
 WCLK ?= 100
-RCLK ?= 100
+RCLK ?= 50
 
 .ONESHELL:	
 all:
