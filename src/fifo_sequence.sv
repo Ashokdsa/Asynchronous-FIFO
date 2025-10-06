@@ -177,11 +177,35 @@ class fifo_read_reset_sequence extends fifo_base_sequence;
   endtask
 endclass
 
+class fifo_writeandread_sequence#(int val) extends fifo_write_sequence#(val);
+  `uvm_object_param_utils(fifo_writeandread_sequence#(val))
+
+  function new(string name = "fifo_writeandread_sequence");
+    super.new(name);
+  endfunction
+
+  task body();
+    repeat(val)
+    begin
+      wval = wval + ((2**`DATA - 1)/(`DEPTH)); 
+      //WRITE
+      `uvm_do_with(seq,
+      {
+        seq.winc == 1;
+        seq.rinc == 1;
+        seq.wdata == wval;
+        seq.wrstn && seq.rrstn == 1;
+      })
+    end
+  endtask
+endclass
+
 class fifo_regress_sequence extends fifo_base_sequence;
   fifo_read_sequence#(2) in_r_seq;
   fifo_write_sequence#(`DEPTH + 2) w_seq;
   fifo_read_sequence#(`DEPTH + 2) r_seq;
   fifo_write_read_sequence#(`DEPTH + 4) wr_seq;
+  fifo_writeandread_sequence#(`DEPTH + 4) wrs_seq;
   fifo_read_reset_sequence seq_r;
   fifo_write_reset_sequence seq_w;
   fifo_no_sequence n_seq;
@@ -199,6 +223,7 @@ class fifo_regress_sequence extends fifo_base_sequence;
     `uvm_do(w_seq);
     `uvm_do(r_seq);
     `uvm_do(wr_seq);
+    `uvm_do(wrs_seq);
     `uvm_do(seq_r);
     `uvm_do(seq_w);
     `uvm_do(n_seq);
