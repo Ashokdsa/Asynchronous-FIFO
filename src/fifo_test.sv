@@ -24,14 +24,14 @@ class fifo_write_test extends uvm_test;
       vseq = virtual_sequence#(fifo_write_sequence#(`DEPTH + 2))::type_id::create("virtual_sequence");
       vseq.start(env.vseqr);
     phase.drop_objection(this);
-    phase_done.set_drain_time(this,20);
+    phase_done.set_drain_time(this,120);
   endtask
 endclass
 
 class fifo_read_test extends uvm_test;
   `uvm_component_utils(fifo_read_test)
   fifo_environment env;
-  virtual_sequence#(fifo_read_sequence#(2)) vseq;
+  virtual_sequence#(fifo_read_sequence#(5)) vseq;
 
   function new(string name = "fifo_read_test",uvm_component parent = null);
     super.new(name,parent);
@@ -50,10 +50,10 @@ class fifo_read_test extends uvm_test;
     uvm_objection phase_done = phase.get_objection();
     super.run_phase(phase);
     phase.raise_objection(this);
-      vseq = virtual_sequence#(fifo_read_sequence#(2))::type_id::create("virtual_sequence");
+      vseq = virtual_sequence#(fifo_read_sequence#(5))::type_id::create("virtual_sequence");
       vseq.start(env.vseqr);
     phase.drop_objection(this);
-    phase_done.set_drain_time(this,20);
+    phase_done.set_drain_time(this,120);
   endtask
 endclass
 
@@ -82,7 +82,7 @@ class fifo_write_read_test extends uvm_test; //ONE IDLE STATE BETWEEN EACH SENDE
       vseq = virtual_sequence#(fifo_write_read_sequence#(5))::type_id::create("virtual_sequence");
       vseq.start(env.vseqr);
     phase.drop_objection(this);
-    phase_done.set_drain_time(this,20);
+    phase_done.set_drain_time(this,120);
   endtask
 endclass
 
@@ -111,7 +111,7 @@ class fifo_writeandread_test extends uvm_test; //ONE IDLE STATE BETWEEN EACH SEN
       vseq = virtual_sequence#(fifo_writeandread_sequence#(`DEPTH + 4))::type_id::create("virtual_sequence");
       vseq.start(env.vseqr);
     phase.drop_objection(this);
-    phase_done.set_drain_time(this,20);
+    phase_done.set_drain_time(this,120);
   endtask
 endclass
 
@@ -140,7 +140,7 @@ class fifo_no_test extends uvm_test;
       vseq = virtual_sequence#(fifo_no_sequence)::type_id::create("virtual_sequence");
       vseq.start(env.vseqr);
     phase.drop_objection(this);
-    phase_done.set_drain_time(this,20);
+    phase_done.set_drain_time(this,120);
   endtask
 endclass
 
@@ -169,7 +169,7 @@ class fifo_write_reset_test extends uvm_test;
       vseq = virtual_sequence#(fifo_write_reset_sequence)::type_id::create("virtual_sequence");
       vseq.start(env.vseqr);
     phase.drop_objection(this);
-    phase_done.set_drain_time(this,20);
+    phase_done.set_drain_time(this,120);
   endtask
 endclass
 
@@ -198,7 +198,7 @@ class fifo_read_reset_test extends uvm_test;
       vseq = virtual_sequence#(fifo_read_reset_sequence)::type_id::create("virtual_sequence");
       vseq.start(env.vseqr);
     phase.drop_objection(this);
-    phase_done.set_drain_time(this,20);
+    phase_done.set_drain_time(this,120);
   endtask
 endclass
 
@@ -227,7 +227,7 @@ class fifo_write_reset_full_test extends uvm_test;
       vseq = virtual_sequence#(fifo_write_reset_full_sequence)::type_id::create("virtual_sequence");
       vseq.start(env.vseqr);
     phase.drop_objection(this);
-    phase_done.set_drain_time(this,20);
+    phase_done.set_drain_time(this,120);
   endtask
 endclass
 
@@ -257,6 +257,6 @@ class fifo_regress_test extends uvm_test;
       vseq = virtual_sequence#(fifo_regress_sequence)::type_id::create("virtual_sequence");
       vseq.start(env.vseqr);
     phase.drop_objection(this);
-    phase_done.set_drain_time(this,20);
+    phase_done.set_drain_time(this,120);
   endtask
 endclass
