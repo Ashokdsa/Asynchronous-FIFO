@@ -86,7 +86,7 @@ class fifo_write_read_test extends uvm_test; //ONE IDLE STATE BETWEEN EACH SENDE
   endtask
 endclass
 
-class fifo_writeandread_test extends uvm_test; //ONE IDLE STATE BETWEEN EACH SENDER AND RECIEVER
+class fifo_writeandread_test extends uvm_test;
   `uvm_component_utils(fifo_writeandread_test)
   fifo_environment env;
   virtual_sequence#(fifo_writeandread_sequence#(`DEPTH+4)) vseq;
@@ -108,7 +108,7 @@ class fifo_writeandread_test extends uvm_test; //ONE IDLE STATE BETWEEN EACH SEN
     uvm_objection phase_done = phase.get_objection();
     super.run_phase(phase);
     phase.raise_objection(this);
-      vseq = virtual_sequence#(fifo_writeandread_sequence#(`DEPTH + 4))::type_id::create("virtual_sequence");
+      vseq = virtual_sequence#(fifo_writeandread_sequence#(`DEPTH+4))::type_id::create("virtual_sequence");
       vseq.start(env.vseqr);
     phase.drop_objection(this);
     phase_done.set_drain_time(this,120);

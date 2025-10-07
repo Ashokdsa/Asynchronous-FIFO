@@ -29,7 +29,6 @@ class fifo_scoreboard extends uvm_scoreboard;
 
   //WFULL IS NOT PROPERLY VERIFIED AS IT IS READ TOO EARLY
   virtual function void write_w(fifo_sequence_item wr);
-    int size_fif = wptr-rptr < 0 ? rptr-wptr : wptr-rptr;
     a = wr;
     `uvm_info(get_name,$sformatf("RECIEVED THE WRITE OUTPUT FULL = %0d",full),UVM_DEBUG)
     if(a.winc && !full && a.wrstn)
@@ -41,7 +40,7 @@ class fifo_scoreboard extends uvm_scoreboard;
         fifo[wptr[($clog2(`DEPTH) - 1):0]] = a.wdata;
       end
     end
-    $display("FIFO SIZE:%0d",size_fif);
+    $display("FIFO:%0p",fifo);
     wptr = a.wrstn ? (full ? wptr : wptr + a.winc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
     full = ({!wptr[$clog2(`DEPTH)],wptr[$clog2(`DEPTH)-1:0]} == rptr) && a.wrstn; //I) Depth of FIFO to be tested
     `uvm_info(get_name,$sformatf("wptr = %5b COND1 = %5b COND2 = %5b",wptr,{~wptr[$clog2(`DEPTH)-1],wptr[$clog2(`DEPTH)-2:0]},rptr),UVM_DEBUG)
@@ -83,7 +82,7 @@ class fifo_scoreboard extends uvm_scoreboard;
         `uvm_warning(get_name,"EMPTY SIGNAL IS INCORRECT")
       end
       //OUTPUT COMPARISON
-      $display("||-----------------------------------------------------------------------------------------------------------------------||");
+      $display("\n||-----------------------------------------------------------------------------------------------------------------------||");
       if(read_val === b.rdata)
       begin
         `uvm_info(get_name,$sformatf("READ OUTPUT MATCHED: EXPECTED = %0d RECIEVED = %0d",read_val,b.rdata),UVM_LOW)
@@ -94,7 +93,7 @@ class fifo_scoreboard extends uvm_scoreboard;
         `uvm_error(get_name,$sformatf("READ OUTPUT MISMATCH: EXPECTED = %0d RECIEVED = %0d",read_val,b.rdata))
         MISMATCH++;
       end
-      $display("||-----------------------------------------------------------------------------------------------------------------------||");
+      $display("||-----------------------------------------------------------------------------------------------------------------------||\n");
     end
   endtask
 
