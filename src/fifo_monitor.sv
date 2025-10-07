@@ -29,10 +29,9 @@ class fifo_wmonitor extends uvm_monitor;
       seq.wdata = vif.wdata;
       seq.wfull = vif.wfull;
       item_collected_port.write(seq);
-      `uvm_info(get_name,"READ VALUES",UVM_MEDIUM)
       if(get_report_verbosity_level() >= UVM_MEDIUM)
       begin
-        $display("----------%0d-----------\nWRITE MONITOR READ:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d\tWFULL = %0b",count,seq.wrstn,seq.winc,seq.wdata,seq.wfull);
+        $display("------------------------------COUNT = %0d TIME:%0t-------------------------------\nWRITE MONITOR READ:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d\tWFULL = %0b",count,$time,seq.wrstn,seq.winc,seq.wdata,seq.wfull);
       end
       repeat(1)@(vif.wmon_cb); //SAME DELAY AS DRIVER
       //repeat(2)@(vif.wmon_cb); //SAME DELAY AS DRIVER
@@ -80,7 +79,7 @@ class fifo_rmonitor extends uvm_monitor;
       `uvm_info(get_name,"READ VALUES",UVM_MEDIUM)
       if(get_report_verbosity_level() >= UVM_MEDIUM)
       begin
-        $display("\t\t\t\t---------%0d---------\n\t\t\t\tREAD MONITOR READ:\n\t\t\t\tRRSTN = %0b\n\t\t\t\tRINC = %0b\n\t\t\t\tRDATA = %0d\tREMPTY = %0b",count,seq.rrstn,seq.rinc,seq.rdata,seq.rempty);
+        $display("---------------------------COUNT = %0d TIME:%0t---------------------------\n\t\t\t\tREAD MONITOR READ:\n\t\t\t\tRRSTN = %0b\n\t\t\t\tRINC = %0b\n\t\t\t\tRDATA = %0d\tREMPTY = %0b",count,$time,seq.rrstn,seq.rinc,seq.rdata,seq.rempty);
       end
       repeat(1)@(vif.rmon_cb); //SAME DELAY AS DRIVER
       //repeat(2)@(vif.rmon_cb); //SAME DELAY AS DRIVER

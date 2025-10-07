@@ -72,13 +72,13 @@ class fifo_subscriber extends uvm_subscriber#(fifo_sequence_item);
   virtual function void write(fifo_sequence_item t);
     mon_w = t;
     write_cg.sample();
-    `uvm_info(get_name,"WRITE INPUTS AND OUTPUTS RECIEVED",UVM_LOW)
+    `uvm_info(get_name,"WRITE INPUTS AND OUTPUTS RECIEVED",UVM_DEBUG)
   endfunction
 
   virtual function void write_subs_r(fifo_sequence_item rd);
     mon_r = rd;
     read_cg.sample();
-    `uvm_info(get_name,"READ INPUTS AND OUTPUTS RECIEVED",UVM_LOW)
+    `uvm_info(get_name,"READ INPUTS AND OUTPUTS RECIEVED",UVM_DEBUG)
   endfunction
 
   function void report_phase(uvm_phase phase);

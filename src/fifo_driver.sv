@@ -31,11 +31,10 @@ class fifo_wdriver extends uvm_driver#(fifo_sequence_item);
     vif.wrstn <= req.wrstn;
     vif.winc <= req.winc; //Q) HAVE TO ASK  ABOUT IT
     vif.wdata <= req.wdata;
-    `uvm_info(get_name,"WRITTEN VALUES",UVM_MEDIUM)
 
     if(get_report_verbosity_level() >= UVM_MEDIUM)
     begin
-      $display("---------%0d---------\nWRITE DRIVER SENT:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d",count,req.wrstn,req.winc,req.wdata);
+      $display("---------------------------COUNT = %0d TIME: %0t---------------------------\nWRITE DRIVER SENT:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d",count,$time,req.wrstn,req.winc,req.wdata);
     end
 
     repeat(1)@(vif.wdrv_cb);
@@ -75,10 +74,9 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
     //DRIVING THE READ SIGNALS
     vif.rrstn <= req.rrstn;
     vif.rinc <= req.rinc;
-    `uvm_info(get_name,"WRITTEN VALUES",UVM_MEDIUM)
-    if(get_report_verbosity_level() >= UVM_MEDIUM)
+    if(get_report_verbosity_level() >= UVM_LOW)
     begin
-      $display("\t\t\t\t-------------%0d------------\n\t\t\t\tREAD DRIVER SENT:\n\t\t\t\tRRSTN = %0b\tRINC = %0b",count,req.rrstn,req.rinc);
+      $display("----------------------COUNT = %0d TIME:%0t---------------------\n\t\t\t\tREAD DRIVER SENT:\n\t\t\t\tRRSTN = %0b\tRINC = %0b",count,$time,req.rrstn,req.rinc);
     end
 
     repeat(1)@(vif.rdrv_cb);

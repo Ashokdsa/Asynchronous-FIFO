@@ -25,11 +25,13 @@ class fifo_scoreboard extends uvm_scoreboard;
   int empty_i;
   logic[`DATA-1:0] read_val;
 
-//Q) DIFFERENT TIME OF START OF CLOCK
+  //Q) DIFFERENT TIME OF START OF CLOCK
+
+  //WFULL IS NOT PROPERLY VERIFIED AS IT IS READ TOO EARLY
   virtual function void write_w(fifo_sequence_item wr);
+    int size_fif = wptr-rptr < 0 ? rptr-wptr : wptr-rptr;
     a = wr;
     `uvm_info(get_name,$sformatf("RECIEVED THE WRITE OUTPUT FULL = %0d",full),UVM_DEBUG)
-    $display("FIFO:\n\t\t\t\t\t\t\t\t%0p",fifo);
     if(a.winc && !full && a.wrstn)
     begin
       if(wptr == fifo.size() && fifo.size() < `DEPTH)
@@ -39,14 +41,14 @@ class fifo_scoreboard extends uvm_scoreboard;
         fifo[wptr[($clog2(`DEPTH) - 1):0]] = a.wdata;
       end
     end
+    $display("FIFO SIZE:%0d",size_fif);
     wptr = a.wrstn ? (full ? wptr : wptr + a.winc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
-    `uvm_warning(get_name,$sformatf("WPTR = %5b",wptr))
     full = ({!wptr[$clog2(`DEPTH)],wptr[$clog2(`DEPTH)-1:0]} == rptr) && a.wrstn; //I) Depth of FIFO to be tested
     `uvm_info(get_name,$sformatf("wptr = %5b COND1 = %5b COND2 = %5b",wptr,{~wptr[$clog2(`DEPTH)-1],wptr[$clog2(`DEPTH)-2:0]},rptr),UVM_DEBUG)
     if(full !== a.wfull)
     begin
       full_i++;
-      `uvm_warning(get_name,$sformatf("FULL SIGNAL IS INCORRECT %0d TIMES",full_i))
+      `uvm_warning(get_name,"FULL SIGNAL IS INCORRECT")
     end
   endfunction
 
@@ -78,26 +80,30 @@ class fifo_scoreboard extends uvm_scoreboard;
       if(empti !== b.rempty)
       begin
         empty_i++;
-        `uvm_warning(get_name,$sformatf("EMPTY SIGNAL IS INCORRECT %0d TIMES",empty_i))
+        `uvm_warning(get_name,"EMPTY SIGNAL IS INCORRECT")
       end
       //OUTPUT COMPARISON
+      $display("||-----------------------------------------------------------------------------------------------------------------------||");
       if(read_val === b.rdata)
       begin
-        `uvm_info(get_name,$sformatf("PROPER READ OUTPUT\nEXPECTED = %0d RECIEVED = %0d",read_val,b.rdata),UVM_LOW)
+        `uvm_info(get_name,$sformatf("READ OUTPUT MATCHED: EXPECTED = %0d RECIEVED = %0d",read_val,b.rdata),UVM_LOW)
         MATCH++;
       end
       else
       begin
-        `uvm_error(get_name,$sformatf("\t\t\t\tIMPROPER READ OUTPUT\nEXPECTED = %0d RECIEVED = %0d",read_val,b.rdata))
+        `uvm_error(get_name,$sformatf("READ OUTPUT MISMATCH: EXPECTED = %0d RECIEVED = %0d",read_val,b.rdata))
         MISMATCH++;
       end
+      $display("||-----------------------------------------------------------------------------------------------------------------------||");
     end
   endtask
 
   function void report_phase(uvm_phase phase);
     super.report_phase(phase);
+    $display("------------------------------------------FINAL PERCENTAGES------------------------------------------");
     `uvm_info(get_name,$sformatf("MATCHES = %0d MISMATCH = %0d PERCENTAGE = %0f",MATCH,MISMATCH,(real'(MATCH)/(real'(MATCH)+real'(MISMATCH)))*100),UVM_LOW)
     `uvm_warning(get_name,$sformatf("FULL SIGNAL WAS INCORRECT %0d TIMES",full_i))
     `uvm_warning(get_name,$sformatf("EMPTY SIGNAL WAS INCORRECT %0d TIMES",empty_i))
+    $display("-----------------------------------------------------------------------------------------------------");
   endfunction
 endclass
