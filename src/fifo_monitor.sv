@@ -33,7 +33,8 @@ class fifo_wmonitor extends uvm_monitor;
       begin
         $display("----------%0d-----------\nWRITE MONITOR READ:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d\tWFULL = %0b",count,seq.wrstn,seq.winc,seq.wdata,seq.wfull);
       end
-      repeat(2)@(vif.wmon_cb); //SAME DELAY AS DRIVER
+      repeat(1)@(vif.wmon_cb); //SAME DELAY AS DRIVER
+      //repeat(2)@(vif.wmon_cb); //SAME DELAY AS DRIVER
     end
   endtask
 endclass
@@ -74,8 +75,9 @@ class fifo_rmonitor extends uvm_monitor;
       begin
         $display("\t\t\t\t---------%0d---------\n\t\t\t\tREAD MONITOR READ:\n\t\t\t\tRRSTN = %0b\n\t\t\t\tRINC = %0b\n\t\t\t\tRDATA = %0d\tREMPTY = %0b",count,seq.rrstn,seq.rinc,seq.rdata,seq.rempty);
       end
-      repeat(2)@(vif.rmon_cb); //SAME DELAY AS DRIVER
-      if(~start && seq.rinc && vif.winc)
+      repeat(1)@(vif.rmon_cb); //SAME DELAY AS DRIVER
+      //repeat(2)@(vif.rmon_cb); //SAME DELAY AS DRIVER
+      if(~start && seq.rinc && seq.rempty)
       begin
         start = 1;
         repeat(2)@(vif.rmon_cb); //SAME DELAY AS DRIVER

@@ -37,7 +37,8 @@ class fifo_wdriver extends uvm_driver#(fifo_sequence_item);
       $display("---------%0d---------\nWRITE DRIVER SENT:\nWRSTN = %0b\nWINC = %0b\tWDATA = %0d",count,req.wrstn,req.winc,req.wdata);
     end
 
-    repeat(2)@(vif.wdrv_cb);
+    repeat(1)@(vif.wdrv_cb);
+    //repeat(1)@(vif.wdrv_cb);
   endtask
 endclass
 
@@ -79,6 +80,6 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
       $display("\t\t\t\t-------------%0d------------\n\t\t\t\tREAD DRIVER SENT:\n\t\t\t\tRRSTN = %0b\tRINC = %0b",count,req.rrstn,req.rinc);
     end
 
-    repeat(2)@(vif.rdrv_cb);
+    repeat(1)@(vif.rdrv_cb);
   endtask
 endclass

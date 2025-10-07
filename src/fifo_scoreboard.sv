@@ -57,7 +57,7 @@ class fifo_scoreboard extends uvm_scoreboard;
   virtual function void write_r(fifo_sequence_item rd);
     fifo_sequence_item read = rd;
     `uvm_info(get_name,"RECIEVED THE READ OUTPUT",UVM_DEBUG)
-    if(read.rinc)
+    //if(read.rinc)
       rqu.push_back(read);
   endfunction
 
