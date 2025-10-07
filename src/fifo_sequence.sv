@@ -218,6 +218,7 @@ class fifo_write_reset_full_sequence extends fifo_base_sequence;
     `uvm_do(seq_r)
     `uvm_do(seq1_w)
     `uvm_do_with(seq,{seq.wrstn == 0;})
+    `uvm_do(seq1_w)
   endtask
 endclass
 
