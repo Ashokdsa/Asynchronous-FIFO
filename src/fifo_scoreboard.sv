@@ -40,7 +40,7 @@ class fifo_scoreboard extends uvm_scoreboard;
         fifo[wptr[($clog2(`DEPTH) - 1):0]] = a.wdata;
       end
     end
-    $display("FIFO:%0p",fifo);
+    $display("FIFO:%0p\nwptr = %5b rptr = %5b",fifo,wptr,rptr);
     wptr = a.wrstn ? (full ? wptr : wptr + a.winc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
     full = ({!wptr[$clog2(`DEPTH)],wptr[$clog2(`DEPTH)-1:0]} == rptr) && a.wrstn; //I) Depth of FIFO to be tested
     `uvm_info(get_name,$sformatf("wptr = %5b COND1 = %5b COND2 = %5b",wptr,{~wptr[$clog2(`DEPTH)-1],wptr[$clog2(`DEPTH)-2:0]},rptr),UVM_DEBUG)
