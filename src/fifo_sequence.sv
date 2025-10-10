@@ -308,6 +308,7 @@ class virtual_sequence#(type T = fifo_base_sequence) extends fifo_base_sequence;
 
   fifo_base_sequence seq_1;
   fifo_base_sequence seq_2;
+  fifo_no_sequence#(6) seq_n;
 
   fifo_sequencer seqr_1;
   fifo_sequencer seqr_2;
@@ -326,6 +327,7 @@ class virtual_sequence#(type T = fifo_base_sequence) extends fifo_base_sequence;
     `uvm_info(get_type_name,"VIRTUAL SEQUENCE BEGUN",UVM_LOW)
     seq_1 = fifo_base_sequence::type_id::create("seq_1");
     seq_2 = fifo_base_sequence::type_id::create("seq_2");
+    seq_n = fifo_no_sequence#(6)::type_id::create("seq_n");
     //$display("A1 = %0d, A2 = %0d",seq_1.a,seq_2.a);
 
     if(!$cast(env_s,uvm_top.find("uvm_test_top.env")))
@@ -335,13 +337,14 @@ class virtual_sequence#(type T = fifo_base_sequence) extends fifo_base_sequence;
 
     fork
       begin
+        `uvm_info(get_type_name,"WSEQUENCER HAS BEGUN",UVM_LOW)
         seq_1.start(p_sequencer.seqr_1);
-        `uvm_info(get_type_name,"SEQUENCER 1 HAS BEGUN",UVM_LOW)
+        seq_n.start(p_sequencer.seqr_1);
       end
 
       begin
         seq_2.start(p_sequencer.seqr_2);
-        `uvm_info(get_type_name,"SEQUENCER 2 HAS BEGUN",UVM_LOW)
+        `uvm_info(get_type_name,"RSEQUENCER 2 HAS BEGUN",UVM_LOW)
       end
     join
 

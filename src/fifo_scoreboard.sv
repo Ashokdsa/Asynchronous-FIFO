@@ -18,6 +18,7 @@ class fifo_scoreboard extends uvm_scoreboard;
   endfunction
 
   logic[`DATA-1:0] fifo[$:`DEPTH];
+  bit[$clog2(`DEPTH):0] wsync[2],rsync[2];
   bit[($clog2(`DEPTH)) : 0] wptr,rptr;
   bit full;
   int full_i;
@@ -40,10 +41,21 @@ class fifo_scoreboard extends uvm_scoreboard;
         fifo[wptr[($clog2(`DEPTH) - 1):0]] = a.wdata;
       end
     end
-    $display("FIFO:%0p\nwptr = %5b rptr = %5b",fifo,wptr,rptr);
+    $display("FIFO:%0p\nwptr = %5b rptr = %5b",fifo,wptr,rsync[1]);
     wptr = a.wrstn ? (full ? wptr : wptr + a.winc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
-    full = ({!wptr[$clog2(`DEPTH)],wptr[$clog2(`DEPTH)-1:0]} == rptr) && a.wrstn; //I) Depth of FIFO to be tested
-    `uvm_info(get_name,$sformatf("wptr = %5b COND1 = %5b COND2 = %5b",wptr,{~wptr[$clog2(`DEPTH)-1],wptr[$clog2(`DEPTH)-2:0]},rptr),UVM_DEBUG)
+    full = ({!wptr[$clog2(`DEPTH)],wptr[$clog2(`DEPTH)-1:0]} == rsync[1]) && a.wrstn; //I) Depth of FIFO to be tested
+    `uvm_info(get_name,$sformatf("wptr = %5b COND1 = %5b COND2 = %5b",wptr,{~wptr[$clog2(`DEPTH)-1],wptr[$clog2(`DEPTH)-2:0]},rsync[1]),UVM_DEBUG)
+    if(a.wrstn)
+    begin
+      rsync[1] <= rsync[0];
+      rsync[0] <= rptr;
+    end
+    else
+    begin
+      rsync[0] <= 0;
+      rsync[1] <= 0;
+    end
+    $display("RSYNC[1] = %0d RSYNC[0] = %0d RPTR = %0d WPTR = %0d",((rsync[1] >> 1)^rsync[1]),((rsync[0] >> 1)^rsync[0]),((rptr >> 1)^rptr),((wptr >> 1)^wptr));
     if(full !== a.wfull)
     begin
       full_i++;
@@ -69,13 +81,23 @@ class fifo_scoreboard extends uvm_scoreboard;
       `uvm_info(get_name,"ENTERED SCB",UVM_DEBUG)
       wait(rqu.size());
       b = rqu.pop_front();
-      empti = (fifo.size() == 0) || (rptr == wptr) || !b.rrstn; //I) Depth of FIFO to be tested
+      empti = (fifo.size() == 0) || (rptr == wsync[1]) || !b.rrstn; //I) Depth of FIFO to be tested
+      `uvm_info(get_name,$sformatf("COND1 = %1b COND2 = %1b COND3 = %1b",fifo.size() == 0,(rptr == wsync[1]),!b.rrstn),UVM_MEDIUM)
       `uvm_info(get_name,$sformatf("RECIEVED THE READ OUTPUT EMPTY = %0d",empti),UVM_DEBUG)
       rptr = b.rrstn ? (empti ? rptr : rptr + b.rinc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
       `uvm_info(get_name,$sformatf("rptr = %4d EMPTY = %0b RINC = %0b FIFO[rptr] = %0d",rptr[$clog2(`DEPTH)-1:0],empti,b.rinc,fifo[rptr[$clog2(`DEPTH)-1:0]]),UVM_DEBUG)
-      if(rptr == 5)
-        $display("%0p",fifo);
       read_val = fifo[rptr[$clog2(`DEPTH)-1:0]];
+      if(b.rrstn)
+      begin
+        wsync[1] <= wsync[0];
+        wsync[0] <= wptr;
+      end
+      else
+      begin
+        wsync[1] <= 0;
+        wsync[0] <= 0;
+      end
+      $display("WSYNC[1] = %0d WSYNC[0] = %0d WPTR = %0d RPTR = %0d",((wsync[1] >> 1)^wsync[1]),((wsync[0] >> 1)^wsync[0]),((wptr >> 1)^wptr),((rptr >> 1)^rptr));
       if(empti !== b.rempty)
       begin
         empty_i++;

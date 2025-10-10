@@ -63,11 +63,11 @@ class fifo_rmonitor extends uvm_monitor;
     repeat(2)@(vif.rmon_cb);
     repeat(1)@(vif.rmon_cb); //STARTS ONE CLOCK AFTER DRIVE
     forever begin
-      if(~start && vif.rinc && vif.rempty)
+      /*if(~start && vif.rinc && vif.rempty)
       begin
         start = 1;
         repeat(3)@(vif.rmon_cb);
-      end
+      end*/
       count++;
       seq = fifo_sequence_item::type_id::create("seq_item");
       #0;
