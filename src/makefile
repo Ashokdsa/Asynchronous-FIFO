@@ -28,6 +28,7 @@ compile:
 	vlog -sv +acc +cover +fcover +define+WCLK=$(WCLK) +define+RCLK=$(RCLK) -l fifo.log fifo_top.sv 
 
 wave:
+	source $(QUESTA)
 	make compile
 	@echo "\t\t\t\t\t...............GENERATING WAVEFORM FOR TEST = $(TEST)..............."
 	vsim -novopt work.fifo_top +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=$(V)

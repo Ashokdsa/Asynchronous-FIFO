@@ -222,6 +222,44 @@ class fifo_write_reset_full_sequence extends fifo_base_sequence;
   endtask
 endclass
 
+class read_reset_sequence#(int val) extends fifo_base_sequence;
+  `uvm_object_param_utils(read_reset_sequence#(val))
+
+  function new(string name = "read_reset_sequence");
+    super.new(name);
+  endfunction
+
+  task body();
+    repeat(val)
+    begin
+      `uvm_do_with(seq,
+      {
+        seq.rinc == 1;
+        seq.rrstn == 0;
+      })
+    end
+  endtask
+endclass
+
+class write_reset_sequence#(int val) extends fifo_base_sequence;
+  `uvm_object_param_utils(write_reset_sequence#(val))
+
+  function new(string name = "write_reset_sequence");
+    super.new(name);
+  endfunction
+
+  task body();
+    repeat(val)
+    begin
+      `uvm_do_with(seq,
+      {
+        seq.winc == 0;
+        seq.wrstn == 0;
+      })
+    end
+  endtask
+endclass
+
 class virtual_regress_sequence extends fifo_base_sequence;
 
   fifo_read_sequence#(2) in_r_seq;
@@ -236,6 +274,8 @@ class virtual_regress_sequence extends fifo_base_sequence;
   fifo_write_reset_sequence seq_wr;
   fifo_write_reset_full_sequence seq_wres;
   fifo_write_reset_full_sequence r_seq_wres;
+  read_reset_sequence#(1) rr_seq;
+  write_reset_sequence#(4) wr_seq;
 
   fifo_sequencer seqr_1;
   fifo_sequencer seqr_2;
@@ -262,6 +302,8 @@ class virtual_regress_sequence extends fifo_base_sequence;
     seq_wr = fifo_write_reset_sequence::type_id::create("seq_wr");
     seq_wres = fifo_write_reset_full_sequence::type_id::create("seq_wres");
     r_seq_wres = fifo_write_reset_full_sequence::type_id::create("r_seq_wres");
+    rr_seq = read_reset_sequence#(1)::type_id::create("rr_seq");
+    wr_seq = write_reset_sequence#(4)::type_id::create("wr_seq");
 
     if(!$cast(env_s,uvm_top.find("uvm_test_top.env")))
       `uvm_fatal(get_name(),"Environment is NOT Created")
@@ -273,30 +315,45 @@ class virtual_regress_sequence extends fifo_base_sequence;
         `uvm_info("WDRV SEQ","SEQUENCER 1 HAS BEGUN",UVM_LOW)
         repeat(2)
           n_seq.start(p_sequencer.seqr_1);
+        `uvm_info("WDRV SEQ","WRITE SEQUENCE HAS BEGUN",UVM_LOW)
         w_seq.start(p_sequencer.seqr_1);
         repeat(20)
           n_seq.start(p_sequencer.seqr_1);
+        `uvm_info("WDRV SEQ","WRITE AND READ SEQUENCE HAS BEGUN",UVM_LOW)
         wrs_seq.start(p_sequencer.seqr_1);
         repeat(10)
           n_seq.start(p_sequencer.seqr_1);
+        wr_seq.start(p_sequencer.seqr_1);
+        `uvm_info("WDRV SEQ","READ RESET SEQUENCE HAS BEGUN",UVM_LOW)
         seq_rw.start(p_sequencer.seqr_1);
-        repeat(5)
+        repeat(6)
           n_seq.start(p_sequencer.seqr_1);
+        `uvm_info("WDRV SEQ","WRITE RESET SEQUENCE HAS BEGUN",UVM_LOW)
         seq_w.start(p_sequencer.seqr_1);
-        repeat(5)
+        repeat(6)
           n_seq.start(p_sequencer.seqr_1);
+        `uvm_info("WDRV SEQ","WRITE FULL RESET SEQUENCE HAS BEGUN",UVM_LOW)
         seq_wres.start(p_sequencer.seqr_1);
       end
 
       begin
         `uvm_info("RDRV SEQ","SEQUENCER 2 HAS BEGUN",UVM_LOW)
+        `uvm_info("RDRV SEQ","INITIAL READ SEQUENCE HAS BEGUN",UVM_LOW)
         in_r_seq.start(p_sequencer.seqr_2);
         repeat(5)
           n_seq.start(p_sequencer.seqr_1);
+        `uvm_info("RDRV SEQ","READ SEQUENCE HAS BEGUN",UVM_LOW)
         r_seq.start(p_sequencer.seqr_2);
+        `uvm_info("RDRV SEQ","WRITE AND READ SEQUENCE HAS BEGUN",UVM_LOW)
         wrsr_seq.start(p_sequencer.seqr_2);
+        //n_seq.start(p_sequencer.seqr_1);
+        `uvm_info("RDRV SEQ","READ RESET SEQUENCE HAS BEGUN",UVM_LOW)
         seq_r.start(p_sequencer.seqr_2);
+        rr_seq.start(p_sequencer.seqr_2);
+        `uvm_info("RDRV SEQ","WRITE RESET SEQUENCE HAS BEGUN",UVM_LOW)
         seq_wr.start(p_sequencer.seqr_2);
+        rr_seq.start(p_sequencer.seqr_2);
+        `uvm_info("RDRV SEQ","WRITE FULL RESET SEQUENCE HAS BEGUN",UVM_LOW)
         r_seq_wres.start(p_sequencer.seqr_2);
       end
     join
