@@ -53,7 +53,9 @@ class fifo_scoreboard extends uvm_scoreboard;
         fifo[wptr[($clog2(`DEPTH) - 1):0]] = a.wdata;
       end
     end
-    $display("FIFO:%0p\nwptr = %5b rptr = %5b",fifo,wptr,rsync[1]);
+    $display("w:%0d",wptr);
+    $display("\nFIFO:%0p",fifo);
+    $display("rsync: %0d",rsync[1]);
     wptr = a.wrstn ? (full ? wptr : wptr + a.winc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
     /*NEW*/full = a.wrstn ? (full ? wptr == rsync[1] : (a.winc && (wptr == rsync[1]))) : 0; 
     //OLD//full = ({!wptr[$clog2(`DEPTH)],wptr[$clog2(`DEPTH)-1:0]} == rsync[1]) && a.wrstn; //I) Depth of FIFO to be tested
@@ -101,6 +103,9 @@ class fifo_scoreboard extends uvm_scoreboard;
       `uvm_info(get_name,$sformatf("rptr = %4d EMPTY = %0b RINC = %0b FIFO[rptr] = %0d",rptr[$clog2(`DEPTH)-1:0],empti,b.rinc,fifo[rptr[$clog2(`DEPTH)-1:0]]),UVM_DEBUG)
       read_val = fifo[rptr[$clog2(`DEPTH)-1:0]];
       rptr = b.rrstn ? (empti ? rptr : rptr + b.rinc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
+      $display("wsync:%0d",wsync[1]);
+      $display("\nFIFO:%0p",fifo);
+      $display("r: %0d",rptr);
       if(empti !== b.rempty)
       begin
         empty_i++;
