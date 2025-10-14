@@ -101,8 +101,8 @@ class fifo_scoreboard extends uvm_scoreboard;
       `uvm_info(get_name,$sformatf("COND1 = %1b COND2 = %1b COND3 = %1b",fifo.size() == 0,(rptr == wsync[1]),!b.rrstn),UVM_MEDIUM)
       `uvm_info(get_name,$sformatf("RECIEVED THE READ OUTPUT EMPTY = %0d",empti),UVM_DEBUG)
       `uvm_info(get_name,$sformatf("rptr = %4d EMPTY = %0b RINC = %0b FIFO[rptr] = %0d",rptr[$clog2(`DEPTH)-1:0],empti,b.rinc,fifo[rptr[$clog2(`DEPTH)-1:0]]),UVM_DEBUG)
-      read_val = fifo[rptr[$clog2(`DEPTH)-1:0]];
       rptr = b.rrstn ? (empti ? rptr : rptr + b.rinc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
+      read_val = fifo[rptr[$clog2(`DEPTH)-1:0]];
       $display("wsync:%0d",wsync[1]);
       $display("\nFIFO:%0p",fifo);
       $display("r: %0d",rptr);
