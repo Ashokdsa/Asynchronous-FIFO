@@ -7,27 +7,23 @@ interface fifo_intf(input logic wclk,rclk);
   logic wfull,rempty;
 
   clocking wdrv_cb @(posedge wclk);
-    default input #0 output #0;
     output winc,wrstn;
     output wdata;
-    input wfull;
+    //input wfull;
   endclocking
 
   clocking rdrv_cb @(posedge rclk);
-    default input #0 output #0;
     output rinc,rrstn;
-    input rempty;
+    //input rempty;
   endclocking
 
   clocking wmon_cb @(posedge wclk);
-    default input #0 output #0;
     input winc,wrstn;
     input wdata;
     input wfull;
   endclocking
 
   clocking rmon_cb @(posedge rclk);
-    default input #0 output #0;
     input rinc,rrstn;
     input rdata;
     input rempty;

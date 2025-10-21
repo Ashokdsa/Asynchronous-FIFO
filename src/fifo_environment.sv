@@ -36,9 +36,11 @@ class fifo_environment extends uvm_env;
     //SCOREBOARD CONNECTION
     w_agnt.mon.item_collected_port.connect(scb.w_item_collect_export);
     r_agnt.mon.item_collected_port.connect(scb.r_item_collect_export);
+
     //SUBSCRIBER CONNECTION
     w_agnt.mon.item_collected_port.connect(subs.analysis_export);
     r_agnt.mon.item_collected_port.connect(subs.r_item_collect_export);
+
     //CONNECTING THE VSEQUENCER SEQUENCERS TO THE ACTUAL SEQUENCERS
     vseqr.seqr_1 = w_agnt.seqr;
     vseqr.seqr_2 = r_agnt.seqr;

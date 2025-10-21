@@ -17,8 +17,8 @@ class fifo_wdriver extends uvm_driver#(fifo_sequence_item);
     super.run_phase(phase);
     repeat(2)@(vif.wdrv_cb);
     forever begin
-      vif.wrstn <= 1;
-      vif.winc <= 0; //Q) HAVE TO ASK  ABOUT IT
+      vif.wdrv_cb.wrstn <= 1;
+      vif.wdrv_cb.winc <= 0; //Q) HAVE TO ASK  ABOUT IT
       seq_item_port.get_next_item(req);
       count++;
       drive();
@@ -28,9 +28,9 @@ class fifo_wdriver extends uvm_driver#(fifo_sequence_item);
 
   task drive();
     //DRIVING THE WRITE SIGNALS
-    vif.wrstn <= req.wrstn;
-    vif.winc <= req.winc; //Q) HAVE TO ASK  ABOUT IT
-    vif.wdata <= req.wdata;
+    vif.wdrv_cb.wrstn <= req.wrstn;
+    vif.wdrv_cb.winc <= req.winc; //Q) HAVE TO ASK  ABOUT IT
+    vif.wdrv_cb.wdata <= req.wdata;
 
     if(get_report_verbosity_level() >= UVM_MEDIUM)
     begin
@@ -38,7 +38,7 @@ class fifo_wdriver extends uvm_driver#(fifo_sequence_item);
     end
 
     repeat(1)@(vif.wdrv_cb);
-    //repeat(1)@(vif.wdrv_cb);
+    //repeat(1)@(vif.wdrv_cb.wdrv_cb);
   endtask
 endclass
 
@@ -61,8 +61,8 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
     super.run_phase(phase);
     repeat(2)@(vif.rdrv_cb);
     forever begin
-      vif.rrstn <= 1;
-      vif.rinc <= 0;
+      vif.rdrv_cb.rrstn <= 1;
+      vif.rdrv_cb.rinc <= 0;
       seq_item_port.get_next_item(req);
       count++;
       drive();
@@ -72,8 +72,8 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
 
   task drive();
     //DRIVING THE READ SIGNALS
-    vif.rrstn <= req.rrstn;
-    vif.rinc <= req.rinc;
+    vif.rdrv_cb.rrstn <= req.rrstn;
+    vif.rdrv_cb.rinc <= req.rinc;
     if(get_report_verbosity_level() >= UVM_LOW)
     begin
       $display("----------------------COUNT = %0d TIME:%0t---------------------\n\t\t\t\tREAD DRIVER SENT:\n\t\t\t\tRRSTN = %0b\tRINC = %0b",count,$time,req.rrstn,req.rinc);
@@ -82,3 +82,4 @@ class fifo_rdriver extends uvm_driver#(fifo_sequence_item);
     repeat(1)@(vif.rdrv_cb);
   endtask
 endclass
+
