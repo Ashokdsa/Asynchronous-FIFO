@@ -60,7 +60,7 @@ class fifo_scoreboard extends uvm_scoreboard;
     $display("FIFO:%0p",fifo);
     $display("rsync: %0d",rsync[1]);
     wptr <= a.wrstn ? (full ? wptr : wptr + a.winc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
-    /*NEW*/full <= a.wrstn ? (full ? wptr == rsync[1] : ((a.winc + wptr) == rsync[1])) : 0; 
+    /*NEW*/full <= a.wrstn ? (full ? wptr == rsync[1] : (a.winc && ((a.winc + wptr) == rsync[1]))) : 0; 
     //OLD//full = ({!wptr[$clog2(`DEPTH)],wptr[$clog2(`DEPTH)-1:0]} == rsync[1]) && a.wrstn; //I) Depth of FIFO to be tested
     `uvm_info(get_name,$sformatf("wptr = %5b COND1 = %5b COND2 = %5b",wptr,{~wptr[$clog2(`DEPTH)-1],wptr[$clog2(`DEPTH)-2:0]},rsync[1]),UVM_DEBUG)
     if(full !== a.wfull)
@@ -101,7 +101,7 @@ class fifo_scoreboard extends uvm_scoreboard;
       $display("WSYNC[1] = %0d WSYNC[0] = %0d WPTR = %0d RPTR = %0d",((wsync[1] >> 1)^wsync[1]),((wsync[0] >> 1)^wsync[0]),((wptr >> 1)^wptr),((rptr >> 1)^rptr));
       //OLD//empti = (fifo.size() == 0) || (rptr == wsync[1]) || !b.rrstn; //I) Depth of FIFO to be tested
       rptr <= b.rrstn ? (empti ? rptr : rptr + b.rinc) : 0; //Q) when reset if increment is HIGH does it write the value/read the value?
-      /*NEW*/empti <= b.rrstn ? (empti ? rptr == wsync[1] : ((b.rinc + rptr) == wsync[1])) : 1; 
+      /*NEW*/empti <= b.rrstn ? (empti ? rptr == wsync[1] : (b.rinc && (((b.rinc + rptr) == wsync[1])))) : 1; 
       `uvm_info(get_name,$sformatf("COND1 = %1b COND2 = %1b COND3 = %1b",b.rrstn,(rptr == wsync[1]),((b.rinc + rptr) == wsync[1])),UVM_MEDIUM)
       `uvm_info(get_name,$sformatf("RECIEVED THE READ OUTPUT EMPTY = %0d",empti),UVM_DEBUG)
       `uvm_info(get_name,$sformatf("rptr = %4d EMPTY = %0b RINC = %0b FIFO[rptr] = %0d",rptr[$clog2(`DEPTH)-1:0],empti,b.rinc,fifo[rptr[$clog2(`DEPTH)-1:0]]),UVM_DEBUG)
