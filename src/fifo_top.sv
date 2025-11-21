@@ -3,7 +3,7 @@
 `include "fifo_pkg.svh"
 import uvm_pkg::*;
 import fifo_pkg::*;
-`include "/home/ashokpius/Async_FIFO_design/Async_FIFO_Design/Verilog_Code/FIFO.v" //FIFO DESIGN
+`include "/fetools/work_area/frontend/Batch_10/vedavyas/design_verification/async_fifo_project/FIFO.v" //FIFO DESIGN
 `include "fifo_assertion.sv"
 module fifo_top;
   bit w_clk,r_clk;
